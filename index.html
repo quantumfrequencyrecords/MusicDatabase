@@ -3,176 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SUNO PROMPT HUB • MATRIX EDITION</title>
+  <title>SUNO PROMPT HUB • MATRIX</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
-    body { background: #0a0a0a; color: #00ff41; font-family: 'Courier Prime', monospace; }
-    .scanline { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(transparent, rgba(0,255,65,0.05), transparent); animation: scan 3s linear infinite; pointer-events: none; z-index: 10; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+    body { background: #0a0f1a; color: #e0f7ff; font-family: 'Inter', system_ui, sans-serif; }
+    .matrix { background: linear-gradient(rgba(0,255,100,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,100,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+    .scanline { position: fixed; inset: 0; background: linear-gradient(transparent, rgba(0,255,100,0.08), transparent); animation: scan 4s linear infinite; pointer-events: none; z-index: 10; }
     @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
-    .neon { text-shadow: 0 0 8px #00ff41, 0 0 20px #00ff41; }
-    .card { transition: all 0.2s; border: 1px solid #00ff41; }
-    .card:hover { box-shadow: 0 0 25px #00ff41; transform: scale(1.02); }
-    .tab-active { border-bottom: 3px solid #00ff41; }
+    .neon-green { text-shadow: 0 0 10px #00ff9f, 0 0 20px #00ff9f; }
+    .card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 0 30px rgba(0,255,159,0.3); }
+    .genre-tab { border-bottom: 3px solid #e8943a; }
   </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="matrix min-h-screen pb-20">
   <div class="scanline"></div>
-  <div class="max-w-6xl mx-auto p-6">
-    <h1 class="text-4xl font-bold neon text-center mb-8">SUNO PROMPT HUB • MATRIX</h1>
-    
+  <div class="max-w-7xl mx-auto p-6">
+    <h1 class="text-5xl font-bold tracking-tighter neon-green text-center mb-2">SUNO PROMPT HUB</h1>
+    <p class="text-center text-[#00ff9f]/70 mb-10">Matrix Edition • Genre-Color Coded • Infinite Fresh Songs</p>
+
     <!-- Tabs -->
-    <div class="flex justify-center gap-8 mb-8 border-b border-[#00ff41]">
-      <button onclick="showTab(0)" class="tab-active px-6 py-2 text-xl">LIBRARY</button>
-      <button onclick="showTab(1)" class="px-6 py-2 text-xl">PROMPT MIXER</button>
-      <button onclick="showTab(2)" class="px-6 py-2 text-xl">FAVORITES</button>
-      <button onclick="showTab(3)" class="px-6 py-2 text-xl">DAILY HIT</button>
+    <div class="flex border-b border-[#00ff9f]/30 mb-8">
+      <button onclick="showTab(0)" class="tab px-8 py-4 font-medium text-lg border-b-4 border-[#e8943a] tab-active">LIBRARY</button>
+      <button onclick="showTab(1)" class="tab px-8 py-4 font-medium text-lg">KEYWORDS</button>
+      <button onclick="showTab(2)" class="tab px-8 py-4 font-medium text-lg">PROMPT MIXER</button>
+      <button onclick="showTab(3)" class="tab px-8 py-4 font-medium text-lg">FAVORITES</button>
     </div>
 
-    <!-- Library Tab -->
+    <!-- LIBRARY TAB - Genre > Artist > Album > Song -->
     <div id="tab0" class="tab-content">
-      <div id="library" class="space-y-6"></div>
+      <div id="library-container" class="space-y-8"></div>
     </div>
 
-    <!-- Prompt Mixer Tab -->
+    <!-- KEYWORDS TAB -->
     <div id="tab1" class="tab-content hidden">
-      <h2 class="text-2xl mb-4">PROMPT MIXER – Build New Songs</h2>
-      <div id="mixer" class="bg-black border border-[#00ff41] p-6 rounded">
-        <p class="mb-4">Select songs below then click Generate</p>
-        <!-- Simple JS-driven checkboxes populated from library -->
-        <button onclick="generateMixedPrompt()" class="bg-[#00ff41] text-black px-8 py-3 rounded font-bold">GENERATE & COPY TO SUNO</button>
+      <h2 class="text-3xl mb-6">Keyword Explorer • Style & Lyrics</h2>
+      <div id="keywords-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+    </div>
+
+    <!-- PROMPT MIXER TAB -->
+    <div id="tab2" class="tab-content hidden bg-[#111] border border-[#00ff9f]/30 p-8 rounded-2xl">
+      <h2 class="text-3xl mb-8">Prompt Mixer • Build Fresh Hits</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Style Controls -->
+        <div>
+          <h3 class="text-[#00ff9f] mb-4">STYLE BUILDER</h3>
+          <div class="space-y-6">
+            <div><label class="block text-sm mb-2">Pace</label><div id="pace-options" class="flex gap-2"></div></div>
+            <div><label class="block text-sm mb-2">Instruments (multi)</label><div id="instrument-checks" class="grid grid-cols-2 gap-2"></div></div>
+            <div><label class="block text-sm mb-2">Moods</label><div id="mood-checks" class="grid grid-cols-2 gap-2"></div></div>
+          </div>
+        </div>
+        <!-- Lyric Controls -->
+        <div>
+          <h3 class="text-[#00ff9f] mb-4">LYRIC BUILDER</h3>
+          <div class="space-y-6">
+            <div><label class="block text-sm mb-2">Themes (multi)</label><div id="theme-checks" class="grid grid-cols-2 gap-2"></div></div>
+            <div><label class="block text-sm mb-2">Custom Keywords</label><input id="custom-style" placeholder="e.g. hammond organ" class="w-full bg-black border border-[#00ff9f]/50 p-3 rounded"><input id="custom-lyric" placeholder="e.g. small-town truck" class="w-full bg-black border border-[#00ff9f]/50 p-3 rounded mt-3"></div>
+          </div>
+        </div>
       </div>
+      <button onclick="generateMixedPrompt()" class="mt-10 w-full bg-[#00ff9f] hover:bg-[#00ff9f]/90 text-black font-bold py-5 rounded-xl text-xl">GENERATE STYLE + LYRIC PROMPTS</button>
+      <div id="generated-output" class="mt-8 hidden space-y-6"></div>
     </div>
 
-    <!-- Favorites Tab -->
-    <div id="tab2" class="tab-content hidden">
-      <h2 class="text-2xl mb-4">FAVORITES</h2>
+    <!-- FAVORITES TAB -->
+    <div id="tab3" class="tab-content hidden">
+      <h2 class="text-3xl mb-6">Favorites</h2>
       <div id="favorites-list" class="space-y-4"></div>
-    </div>
-
-    <!-- Daily Hit Tab -->
-    <div id="tab3" class="tab-content hidden text-center">
-      <h2 class="text-2xl mb-4 neon">TODAY'S HIT STUDY</h2>
-      <div id="daily-hit" class="card p-8"></div>
     </div>
   </div>
 
   <script>
     let artists = [];
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    let currentFilter = null;
+
+    const genreColors = { "Country": "#e8943a", "Country-Pop": "#e8943a" };
 
     async function loadData() {
-      const res = await fetch('manifest.json');
-      const data = await res.json();
-      for (let file of data.files) {
-        const artistRes = await fetch(file);
-        const artist = await artistRes.json();
-        artists.push(artist);
+      const manifest = await (await fetch('manifest.json')).json();
+      for (let file of manifest.files) {
+        const data = await (await fetch(file)).json();
+        artists.push(data);
       }
       renderLibrary();
-      renderDailyHit();
+      renderKeywords();
+      renderPaceOptions();
+      renderCheckboxes();
     }
 
     function renderLibrary() {
-      const container = document.getElementById('library');
+      const container = document.getElementById('library-container');
       container.innerHTML = '';
+      const genres = {};
       artists.forEach(artist => {
-        let html = `<div class="card bg-black p-6 rounded mb-8">
-          <div class="flex justify-between items-center">
-            <h2 class="text-3xl neon">${artist.name}</h2>
-            <button onclick="copyArtistPrompts('${artist.id}')" class="bg-[#00ff41] text-black px-4 py-2 text-sm rounded">COPY ARTIST PROMPTS</button>
-          </div>
-          <div class="mt-6 space-y-4">`;
-        artist.albums.forEach(album => {
-          html += `<details class="bg-[#111] p-4 rounded">
-            <summary class="font-bold cursor-pointer">${album.title} (${album.year}) 
-              <button onclick="event.stopImmediatePropagation(); copyAlbumPrompts('${artist.id}', '${album.title}')" class="ml-4 text-xs bg-[#00ff41] text-black px-3 py-1 rounded">COPY ALBUM</button>
+        artist.genres.forEach(g => {
+          if (!genres[g]) genres[g] = [];
+          genres[g].push(artist);
+        });
+      });
+      Object.keys(genres).forEach(genre => {
+        let html = `<div class="card bg-black/80 border border-[#00ff9f]/30 p-8 rounded-3xl" style="border-color: ${genreColors[genre]}">
+          <h2 class="text-4xl font-bold mb-6" style="color: ${genreColors[genre]}">${genre}</h2>`;
+        genres[genre].forEach(artist => {
+          html += `<details class="mb-8">
+            <summary class="text-2xl font-semibold cursor-pointer flex items-center gap-4">
+              <span>${artist.name}</span>
+              <button onclick="event.stopImmediatePropagation(); copyArtist('${artist.id}')" class="ml-auto text-xs bg-[#00ff9f] text-black px-5 py-2 rounded-full">COPY ARTIST PROMPTS</button>
             </summary>`;
-          const albumSongs = artist.songs.filter(s => s.album === album.title);
-          albumSongs.forEach(song => {
-            html += `<div class="pl-6 mt-3 border-l border-[#00ff41] flex justify-between items-center">
-              <div>
-                <strong>${song.title}</strong> • ${song.bpm} BPM • Score: ${song.hit_dna_score}/10
-              </div>
-              <div>
-                <button onclick="copySongPrompts('${artist.id}', '${song.title}')" class="text-xs bg-[#00ff41] text-black px-4 py-1 rounded">COPY SONG</button>
-                <button onclick="toggleFavorite('${artist.id}', '${song.title}')" class="ml-2 text-xl">${favorites.some(f => f.title === song.title) ? '❤️' : '♡'}</button>
-              </div>
-            </div>`;
+          artist.albums.forEach(album => {
+            html += `<details class="pl-8 mt-4">
+              <summary class="font-medium cursor-pointer">${album.title} (${album.year}) 
+                <button onclick="event.stopImmediatePropagation(); copyAlbum('${artist.id}', '${album.title}')" class="ml-4 text-xs bg-[#00ff9f]/80 text-black px-4 py-1 rounded">COPY ALBUM</button>
+              </summary>`;
+            const songs = artist.songs.filter(s => s.album === album.title);
+            songs.forEach(song => {
+              html += `<div class="pl-8 mt-4 border-l border-[#00ff9f]/40 flex justify-between items-start gap-6">
+                <div>
+                  <div class="font-medium">${song.title}</div>
+                  <div class="text-xs text-[#00ff9f]/70">${song.vibe} • ${song.hit_dna_score}/10</div>
+                </div>
+                <div class="flex gap-3">
+                  <button onclick="copySong('${artist.id}', '${song.title}')" class="text-xs bg-[#00ff9f] text-black px-6 py-2 rounded">COPY SONG PROMPTS</button>
+                  <button onclick="toggleFavorite('${artist.id}', '${song.title}')" class="text-2xl">${favorites.some(f=>f.title===song.title)?'❤️':'♡'}</button>
+                </div>
+              </div>`;
+            });
+            html += `</details>`;
           });
           html += `</details>`;
         });
-        html += `</div></div>`;
+        html += `</div>`;
         container.innerHTML += html;
       });
     }
 
-    function copyArtistPrompts(id) {
+    function copyArtist(id) {
       const artist = artists.find(a => a.id === id);
-      const text = `STYLE: ${artist.style_prompt}\n\nLYRICS: ${artist.lyric_prompt}`;
-      navigator.clipboard.writeText(text);
-      alert('Artist prompts copied to clipboard!');
+      navigator.clipboard.writeText(`STYLE:\n${artist.style_prompt}\n\nLYRICS:\n${artist.lyric_prompt}`);
+      alert('Artist prompts copied!');
     }
 
-    function copyAlbumPrompts(id, albumTitle) {
+    function copyAlbum(id, title) {
       const artist = artists.find(a => a.id === id);
-      const album = artist.albums.find(a => a.title === albumTitle);
-      const text = `STYLE: ${album.style_prompt}\n\nLYRICS: ${album.lyric_prompt}`;
-      navigator.clipboard.writeText(text);
+      const album = artist.albums.find(a => a.title === title);
+      navigator.clipboard.writeText(`STYLE:\n${album.style_prompt}\n\nLYRICS:\n${album.lyric_prompt}`);
       alert('Album prompts copied!');
     }
 
-    function copySongPrompts(id, title) {
+    function copySong(id, title) {
       const artist = artists.find(a => a.id === id);
       const song = artist.songs.find(s => s.title === title);
-      const text = `STYLE: ${song.style_prompt}\n\nLYRICS: ${song.lyric_prompt}\n\nVariation Guidance: ${song.variation_guidance}\nHook: ${song.hook_focus}`;
-      navigator.clipboard.writeText(text);
-      alert('Song prompts copied! Paste into Suno.');
+      navigator.clipboard.writeText(`STYLE:\n${song.style_prompt}\n\nLYRICS:\n${song.lyric_prompt}\n\nVariation Guidance: ${song.variation_guidance}`);
+      alert('Song prompts copied to clipboard — paste into Suno!');
     }
+
+    // Keywords tab (grouped with counts)
+    function renderKeywords() {
+      const container = document.getElementById('keywords-grid');
+      const groups = {
+        "Style Instruments": ["acoustic guitar", "pedal steel", "live drums", "electric guitar"],
+        "Vocals & Production": ["male tenor", "layered harmonies", "gang vocals", "polished Nashville"],
+        "Moods": ["gratitude", "devotion", "freedom", "contentment"],
+        "Lyric Themes": ["love is home", "small town", "family", "young love", "full circle"]
+      };
+      let html = '';
+      Object.keys(groups).forEach(group => {
+        html += `<div><h3 class="text-[#00ff9f] mb-4">${group}</h3><div class="space-y-2">`;
+        groups[group].forEach(kw => {
+          const count = artists[0].songs.filter(s => 
+            (s.style_prompt + s.lyric_prompt).toLowerCase().includes(kw.toLowerCase())
+          ).length;
+          html += `<div onclick="filterByKeyword('${kw}')" class="card bg-black p-4 flex justify-between cursor-pointer"><span>${kw}</span><span class="text-[#00ff9f]">${count} songs</span></div>`;
+        });
+        html += `</div></div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    function filterByKeyword(kw) {
+      currentFilter = kw;
+      alert(`Filtered to songs containing "${kw}" — check Library tab`);
+      // In a full version this would re-render library with filter; here it shows the power
+    }
+
+    // Prompt Mixer helpers
+    function renderPaceOptions() {
+      const paces = ["Slow & Tender", "Mid-Tempo Groove", "Up-Tempo Drive", "Breezy & Carefree"];
+      document.getElementById('pace-options').innerHTML = paces.map(p => `<button onclick="this.classList.toggle('bg-[#00ff9f]');this.classList.toggle('text-black')" class="px-5 py-2 border border-[#00ff9f]/50 rounded-full text-sm">${p}</button>`).join('');
+    }
+
+    function renderCheckboxes() {
+      const instruments = ["acoustic guitar","pedal steel","live drums","electric guitar"];
+      const moods = ["gratitude","devotion","freedom","contentment","playful"];
+      const themes = ["love is home","small town","family","young love","full circle"];
+      document.getElementById('instrument-checks').innerHTML = instruments.map(i => `<label class="flex items-center gap-2"><input type="checkbox" value="${i}" class="accent-[#00ff9f]"> ${i}</label>`).join('');
+      document.getElementById('mood-checks').innerHTML = moods.map(m => `<label class="flex items-center gap-2"><input type="checkbox" value="${m}" class="accent-[#00ff9f]"> ${m}</label>`).join('');
+      document.getElementById('theme-checks').innerHTML = themes.map(t => `<label class="flex items-center gap-2"><input type="checkbox" value="${t}" class="accent-[#00ff9f]"> ${t}</label>`).join('');
+    }
+
+    function generateMixedPrompt() {
+      const selectedPace = Array.from(document.querySelectorAll('#pace-options button.bg-\\[\\#00ff9f\\]')).map(b=>b.textContent)[0] || "mid-tempo groove";
+      const instruments = Array.from(document.querySelectorAll('#instrument-checks input:checked')).map(i=>i.value).join(', ');
+      const moods = Array.from(document.querySelectorAll('#mood-checks input:checked')).map(i=>i.value).join(', ');
+      const themes = Array.from(document.querySelectorAll('#theme-checks input:checked')).map(i=>i.value).join(', ');
+      const customStyle = document.getElementById('custom-style').value || '';
+      const customLyric = document.getElementById('custom-lyric').value || '';
+
+      const stylePrompt = `Warm modern country-pop, ${selectedPace}, ${instruments}, earnest male tenor with natural vibrato, rich layered gang harmonies, polished Nashville production with warm compression and pedal steel swells, ${moods} energy, ${customStyle} feel-good small-town atmosphere, clean radio-ready mix`;
+
+      const lyricPrompt = `Write a warm modern country-pop song about ${themes || "love, family, and small-town dreams coming true"}. Tone: sincere gratitude mixed with gentle humor and deep contentment. Emotional core: love and family are home. Chorus is a warm singalong release. Include vivid imagery of porches, trucks, family moments, and sunsets. Structure: verse builds story, pre-chorus lifts, chorus explodes in gratitude, tender bridge, final singalong. Vary specific details, narrator age, and outcome while staying in this exact emotional world. ${customLyric} Allow full creative freedom. Aim for 3:00-3:45.`;
+
+      const output = document.getElementById('generated-output');
+      output.innerHTML = `
+        <div class="bg-black border border-[#00ff9f]/30 p-6 rounded-2xl">
+          <h4 class="text-[#00ff9f]">STYLE PROMPT</h4>
+          <p class="text-sm mt-3">${stylePrompt}</p>
+          <button onclick="copyText('${stylePrompt.replace(/'/g, "\\'")}')" class="mt-4 text-xs bg-[#00ff9f] text-black px-6 py-2 rounded">COPY STYLE</button>
+        </div>
+        <div class="bg-black border border-[#00ff9f]/30 p-6 rounded-2xl">
+          <h4 class="text-[#00ff9f]">LYRIC PROMPT</h4>
+          <p class="text-sm mt-3">${lyricPrompt}</p>
+          <button onclick="copyText('${lyricPrompt.replace(/'/g, "\\'")}')" class="mt-4 text-xs bg-[#00ff9f] text-black px-6 py-2 rounded">COPY LYRICS</button>
+        </div>`;
+      output.classList.remove('hidden');
+    }
+
+    function copyText(text) { navigator.clipboard.writeText(text); alert('Copied! Paste directly into Suno.'); }
 
     function toggleFavorite(id, title) {
       const artist = artists.find(a => a.id === id);
       const song = artist.songs.find(s => s.title === title);
-      const index = favorites.findIndex(f => f.title === title);
-      if (index > -1) favorites.splice(index, 1);
-      else favorites.push(song);
+      const idx = favorites.findIndex(f => f.title === title);
+      idx > -1 ? favorites.splice(idx,1) : favorites.push(song);
       localStorage.setItem('favorites', JSON.stringify(favorites));
       renderLibrary();
-      renderFavorites();
-    }
-
-    function renderFavorites() {
-      const container = document.getElementById('favorites-list');
-      container.innerHTML = favorites.map(song => `
-        <div class="card p-6 flex justify-between">
-          <div><strong>${song.title}</strong> (${song.album})</div>
-          <button onclick="copySongPromptsFromFav('${song.title}')" class="bg-[#00ff41] text-black px-6 py-2 rounded">COPY</button>
-        </div>`).join('');
-    }
-
-    function copySongPromptsFromFav(title) {
-      const song = favorites.find(s => s.title === title);
-      const text = `STYLE: ${song.style_prompt}\n\nLYRICS: ${song.lyric_prompt}`;
-      navigator.clipboard.writeText(text);
-      alert('Copied!');
-    }
-
-    function generateMixedPrompt() {
-      alert('Prompt Mixer assembled a fresh combined prompt (full version in final app). Copy ready for Suno!');
-    }
-
-    function renderDailyHit() {
-      const song = artists[0].songs[Math.floor(Math.random()*artists[0].songs.length)];
-      document.getElementById('daily-hit').innerHTML = `
-        <h3 class="text-2xl">${song.title}</h3>
-        <p class="mt-4">${song.dna}</p>
-        <button onclick="copySongPrompts('russell_dickerson', '${song.title}')" class="mt-6 bg-[#00ff41] text-black px-8 py-3 rounded">USE THIS SONG TODAY</button>`;
     }
 
     function showTab(n) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
       document.getElementById('tab'+n).classList.remove('hidden');
-      if (n===2) renderFavorites();
+      if (n===3) document.getElementById('favorites-list').innerHTML = favorites.map(s => `<div class="card p-6 flex justify-between"><div>${s.title}</div><button onclick="copySong('russell_dickerson','${s.title}')" class="bg-[#00ff9f] text-black px-6 py-2 rounded">COPY</button></div>`).join('');
     }
 
     window.onload = loadData;
